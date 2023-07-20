@@ -2,9 +2,21 @@
 
 Converts any skin using SpotifyPlugin or NowPlaying to use WebNowPlaying
 
+# Usage
+
+Install the latest .rmskin from [releases](https://github.com/reisir/nonp/releases).
+
+Load the skin (should load automatically on install).
+
+Hold ctrl + alt and click on the skin you want to convert.
+
+Click the image that appears to convert the skin.
+
+If the image doesn't appear the skin does not use NowPlaying or SpotifyPlugin.
+
 ### Disclaimer
 
-The script operates very crudely. If a file contains a single section using NowPlaying or SpotifyPlugin, it will completely replace the file, adding a bunch of newlines to the end because the regex is a bit messed up.
+The conversion script operates very crudely. If a file contains a single section using NowPlaying or SpotifyPlugin, it will completely replace the file, adding a bunch of new lines to the end because the regex is a bit messed up.
 
 So if you're developing a skin or have heavily modified a skin, do not use this. It has a non-zero chance to completely destroy the skin. 
 
