@@ -3,6 +3,7 @@
 $webnowplaying = "`nMeasure=Plugin`nPlugin=WebNowPlaying`n`n"
 
 function Plugin {
+    [CmdletBinding()]
     param (
         [Parameter(Position = 0, Mandatory)]
         [string]
@@ -19,7 +20,6 @@ function Plugin {
 }
 
 function Contains-Patterns {
-
     [CmdletBinding()]
     param (
         [Parameter(Position = 0, Mandatory)]
@@ -58,7 +58,6 @@ function Remove-Option {
 }
 
 function PlayerTypes {
-
     [CmdletBinding()]
     param (
         [Parameter(Position = 0, ValueFromPipeline, Mandatory)]
@@ -96,24 +95,24 @@ function PlayerTypes {
 }
 
 function Get-Path {
-    
+
     $skins = $RmApi.VariableStr("SKINSPATH")
     $root = $RmApi.MeasureStr("rootconfig")
     return "$skins$root"
-    
+
 }
 
 function ScanFiles {
     $Path = Get-Path
     Get-ChildItem -Path "$($Path)\*" -Recurse -Include "*.inc", "*.ini" | % {
         $file = "$($_)"
-    
+
         $content = Get-Content $file -Raw
         $sections = Parse-Ini -Content $content
-    
+
         $np = Plugin "nowplaying"
         $sp = Plugin "spotifyplugin"
-    
+
         foreach ($section in $sections) {
             if ((Contains-Patterns $section -Patterns $np) -or (Contains-Patterns $section -Patterns $sp) ) {
                 return $True
@@ -130,7 +129,7 @@ function Scan {
         $RmApi.Bang("[!SetVariable detected 0][!UpdateMeter now][!Redraw]")
         return
     }
-    
+
     $RmApi.Bang("[Play $($RmApi.ReplaceVariablesStr("#@#wnp.wav"))][!SetVariable detected 1][!UpdateMeter now][!Redraw]")
 
     if ($RmApi.Measure("MeasureStatus") -eq 1) { 
@@ -156,26 +155,27 @@ function ConvertTo-WebNowPlaying {
     if ($Path -notlike "$($RmApi.VariableStr("SKINSPATH"))*") { throw "Illegal path." }
 
     $RmApi.Bang("[PlayStop]")
-    
+
     Write-Host $Path
 
     Get-ChildItem -Path "$($Path)\*" -Recurse -Include "*.inc", "*.ini" | % {
-    
+
         $file = "$($_)"
-    
+
         Write-Host $file
-    
+
         $content = Get-Content $file -Raw
         $sections = Parse-Ini -Content $content
         $newContent = ""
-    
-        $np = Plugin "nowplaying"
-        $sp = Plugin "spotifyplugin"
+
+        $pluginPatterns = Plugin "nowplaying"
+        $pluginPattenrs += Plugin "spotifyplugin"
+        $pluginPattenrs += Plugin "mediaplayer"
 
         $replaceFile = $False
-    
+
         foreach ($section in $sections) {
-            if ((Contains-Patterns $section -Patterns $np) -or (Contains-Patterns $section -Patterns $sp) ) {
+            if (Contains-Patterns $section -Patterns $pluginPatterns) {
                 $replaceFile = $True
                 $section = Remove-Option $section "measure"
                 $section = Remove-Option $section "plugin"
@@ -185,7 +185,7 @@ function ConvertTo-WebNowPlaying {
             }
             $newContent += "$($section)`n`n"
         }
-    
+
         if ($replaceFile) { Set-Content -Path $file -Value $newContent -Force }
     }
 
